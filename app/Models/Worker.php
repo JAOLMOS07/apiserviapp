@@ -8,4 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Worker extends Model
 {
     use HasFactory;
+
+    public function User()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function Services()
+    {
+        return $this->hasMany(Service::class);
+    }
+
+    public function Categories()
+    {
+        return $this->belongsToMany(Category::class);
+    }
 }
