@@ -4,12 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Worker;
 use Illuminate\Http\Request;
-
+use JWTAuth;
 class WorkerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
+    protected $user;
+    public function __construct(Request $request)
+    {
+        $token = $request->header('Authorization');
+        if ($token != '')
+            //En caso de que requiera autentifiación la ruta obtenemos el usuario y lo almacenamos en una variable, nosotros no lo utilizaremos.
+            $this->user = JWTAuth::parseToken()->authenticate();
+    }
     public function index()
     {
         //
@@ -20,8 +29,21 @@ class WorkerController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $Worker = Worker::create(
+        [
+            "user_id" => $this->user->id,
+            "calification"=> 5
+        ]
+        );
+
+
+        $Worker->Categories()->attach($request->category);
+
+        return response($Worker);
     }
+
+
+
 
     /**
      * Display the specified resource.

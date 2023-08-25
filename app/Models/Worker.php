@@ -8,7 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Worker extends Model
 {
     use HasFactory;
-
+    protected $fillable = [
+        'user_id',
+        'calification'
+    ];
     public function User()
     {
         return $this->belongsTo(User::class);

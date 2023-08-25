@@ -12,7 +12,8 @@ return new class extends Migration {
     {
         Schema::create('workers', function (Blueprint $table) {
             $table->id('worker_id');
-            $table->foreign('worker_id')->references('id')->on('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->unsignedBigInteger('calification');
             $table->timestamps();
         });
