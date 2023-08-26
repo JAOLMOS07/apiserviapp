@@ -31,6 +31,7 @@ class ClientController extends Controller
     {
         $client = Client::create(
         [
+            "id" => $this->user->id,
             "user_id" => $this->user->id
         ]
         );

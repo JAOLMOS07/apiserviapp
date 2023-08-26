@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use JWTAuth;
+
 class WorkerController extends Controller
 {
     /**
@@ -29,17 +30,18 @@ class WorkerController extends Controller
      */
     public function store(Request $request)
     {
-        $Worker = Worker::create(
-        [
-            "user_id" => $this->user->id,
-            "calification"=> 5
-        ]
+        $worker = Worker::create(
+            [
+                "id" => $this->user->id,
+                "user_id" => $this->user->id,
+                "calification" => 5
+            ]
         );
 
 
-        $Worker->Categories()->attach($request->category);
+        $worker->Categories()->attach($request->category);
 
-        return response($Worker);
+        return response($worker);
     }
 
 

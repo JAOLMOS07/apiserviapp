@@ -9,9 +9,11 @@ class Worker extends Model
 {
     use HasFactory;
     protected $fillable = [
+        'id',
         'user_id',
         'calification'
     ];
+
     public function User()
     {
         return $this->belongsTo(User::class);

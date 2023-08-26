@@ -18,10 +18,12 @@ return new class extends Migration
             $table->double('price');
             $table->date('Date');
             $table->unsignedBigInteger('worker_id')->nullable();
-            $table->foreign('worker_id')->references('worker_id')->on('workers')->onDelete('cascade');
+            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
             $table->unsignedBigInteger('client_id');
-            $table->foreign('client_id')->references('client_id')->on('clients')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->unsignedInteger('calification')->nullable();
+            $table->boolean('active');
+
             $table->timestamps();
 
         });

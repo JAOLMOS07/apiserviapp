@@ -47,7 +47,8 @@ class ServiceController extends Controller
     public function getOffers(Request $request)
     {
         $worker = $this->user->Worker;
-        $workerId = $worker->worker_id;
+        $workerId = $worker->id;
+        $workerUserId = $worker->user_id;
 
         $services = Service::whereHas('categories', function ($query) use ($workerId) {
             $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
@@ -56,7 +57,11 @@ class ServiceController extends Controller
                     ->join('category_worker', 'categories.id', '=', 'category_worker.category_id')
                     ->where('category_worker.worker_id', $workerId);
             });
-        })->get();
+        })
+            ->where('active', true)
+            ->where('client_id', '!=', $workerId)
+            ->get();
+
         return response($services);
     }
 
@@ -71,7 +76,7 @@ class ServiceController extends Controller
             'description' => 'required|string',
             'price' => 'required|numeric',
             'date' => 'required|date',
-            'client_id' => 'required|integer',
+
         ];
 
         // Valida el request según las reglas definidas
@@ -91,8 +96,9 @@ class ServiceController extends Controller
                 'price' => $request->price,
                 'Date' => $request->date,
                 'worker_id' => null,
-                'client_id' => $client->client_id,
-                'calification' => 4,
+                'client_id' => $client->id,
+                'calification' => 5,
+                'active' => true
             ]);
         }
 

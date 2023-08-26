@@ -15,7 +15,8 @@ class Service extends Model
         'Date',
         'worker_id',
         'client_id',
-        'calification'
+        'calification',
+        'active'
     ];
 
     public function Worker()
