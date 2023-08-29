@@ -22,8 +22,7 @@ class ServiceController extends Controller
     {
         $token = $request->header('Authorization');
         if ($token != '')
-            //En caso de que requiera autentifiación la ruta obtenemos el usuario y lo almacenamos en una variable, nosotros no lo utilizaremos.
-            $this->user = JWTAuth::parseToken()->authenticate();
+           $this->user = JWTAuth::parseToken()->authenticate();
     }
 
 

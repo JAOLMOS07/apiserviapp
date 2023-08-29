@@ -1,9 +1,11 @@
 <?php
 
 namespace App\Http\Controllers;
-use JWAuth;
-use App\Models\Rate;
+use JWTAuth;
 use App\Models\service;
+use App\Models\Rate;
+
+
 
 use Illuminate\Http\Request;
 
@@ -17,96 +19,85 @@ class RateController extends Controller
     {
         $token = $request->header('Authorization');
         if ($token != '')
-            //En caso de que requiera autentifiación la ruta obtenemos el usuario y lo almacenamos en una variable, nosotros no lo utilizaremos.
             $this->user = JWTAuth::parseToken()->authenticate();
     }
 
-    public function index()
+    public function Rate(Service $service)
     {
-        //
+        $rate = Rate::where("service_id",$service->id)->get()[0];
+
+        if($rate == null)
+        {
+            return response("error rate",404);
+        }
+
+
+        return response($rate);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request,Service $service)
+    public function store(Service $service)
     {
-        $worker = $this->user->worker;
-        if($worker == null)
-        {
-            return response("Invalid worker",400);
+        $client = $this->user->client;
+
+        if ($client == null || $client->id != $service->Client->id) {
+            return response("Invalid client", 400);
         }
 
         $rate = Rate::create([
-            'rate_service'=>null,
+            'rate_client'=>null,
             'rate_worker'=>null,
+            'comment_client'=>null,
+            'comment_worker'=>null,
             'service_id'=> $service->id,
-            'worker_id' => $worker->id
-        ]);
+            'worker_id' => $service->workers[0]->id,
+            'client_id'=> $client->id,
 
+        ]);
 
         return response($rate);
     }
     public function rateWorker(Request $request,Service $service)
     {
-        $worker = $this->user->worker;
-        if($worker == null || $worker->id != $service->worker->id)
-        {
-            return response("Invalid worker",400);
-        }
-
-        $rate = $service->rate;
-
-        if($rate == null)
-        {
-            return response("error rate",404);
-        }
-
-        $rate->rate_worker = $request->rate_worker;
-        $rate->save();
-        return response($rate);
-    }
-    public function rateService(Request $request,Service $service)
-    {
         $client = $this->user->client;
 
-        if($client == null || $client->id != $service->Client->id)
-        {
-            return response("Invalid client",400);
+        if ($client == null || $client->id != $service->Client->id) {
+            return response("Invalid client", 400);
         }
 
-        $rate = $service->rate;
+        $rate = Rate::where("service_id",$service->id)->get()[0];
 
         if($rate == null)
         {
             return response("error rate",404);
         }
 
-        $rate->rate_client = $request->rate_client;
+
+        $rate->rate_client = $request->rate;
+        $rate->comment_client = $request->comment;
         $rate->save();
         return response($rate);
     }
-    /**
-     * Display the specified resource.
-     */
-    public function show(Rate $rate)
+    public function rateCLient(Request $request,Service $service)
     {
-        //
+        $worker = $this->user->worker;
+
+        if ($worker == null || $worker->id != $service->workers[0]->id) {
+            return response("Invalid worker", 400);
+        }
+
+        $rate = Rate::where("service_id",$service->id)->get()[0];
+
+        if($rate == null)
+        {
+            return response("error rate",404);
+        }
+
+
+        $rate->rate_client = $request->rate;
+        $rate->comment_client = $request->comment;
+        $rate->save();
+        return response($rate);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Rate $rate)
-    {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Rate $rate)
-    {
-        //
-    }
 }

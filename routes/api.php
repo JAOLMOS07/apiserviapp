@@ -6,6 +6,8 @@ use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ContractController;
+use App\Http\Controllers\RateController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,13 +45,21 @@ Route::prefix('v1')->group(function () {
             Route::post('createservice', [ServiceController::class, 'store']);
             Route::get('getoffers', [ServiceController::class, 'getOffers']);
             Route::post('postulate/{service}', [ServiceController::class, 'postulate']);
-            Route::post('aplicants/{service}', [ServiceController::class, 'aplicants']);
+            Route::get('aplicants/{service}', [ServiceController::class, 'aplicants']);
             Route::post('acceptaplicants/{service}', [ServiceController::class, 'acceptAplicant']);
 
             Route::prefix('contract')->group(function () {
                 Route::get('{service}', [ContractController::class, 'getContract']);
                 Route::patch('{contract}', [ContractController::class, 'AcceptContract']);
                 Route::post('createcontract/{service}', [ContractController::class, 'store']);
+
+
+            });
+            Route::prefix('rate')->group(function () {
+                Route::get('{service}', [RateController::class, 'rate']);
+                Route::post('{service}', [RateController::class, 'store']);
+                Route::patch('worker/{service}', [RateController::class, 'rateWorker']);
+                Route::patch('client/{service}', [RateController::class, 'rateClient']);
 
 
             });

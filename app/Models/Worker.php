@@ -29,7 +29,7 @@ class Worker extends Model
     }
     public function Rates()
     {
-        return $this->HasMany(Rate::class);
+        return $this->hasMany(Rate::class);
     }
 
     public function Categories()

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use JWTAuth;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Contract;
 use App\Models\Service;
 use Illuminate\Http\Request;
@@ -15,7 +16,6 @@ class ContractController extends Controller
     {
         $token = $request->header('Authorization');
         if ($token != '')
-            //En caso de que requiera autentifiación la ruta obtenemos el usuario y lo almacenamos en una variable, nosotros no lo utilizaremos.
             $this->user = JWTAuth::parseToken()->authenticate();
     }
 
@@ -38,6 +38,20 @@ class ContractController extends Controller
 
     public function store(Request $request, Service $service)
     {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'date_init' => 'required|date',
+            'hours_worked' => 'required|numeric',
+            'description' => 'required|string',
+            'date_end' => 'required|date',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
         $client = $this->user->client;
 
         if ($client == null || $client->id != $service->Client->id) {
@@ -61,6 +75,11 @@ class ContractController extends Controller
 
     public function AcceptContract(Request $request,Contract $contract)
     {
+
+        if($request->signed == null){
+            return response("error", 400);
+
+        }
 
         $worker = $this->user->worker;
         if($worker == null || $worker->id != $contract->worker->id || $contract->signed  != null){

@@ -23,6 +23,11 @@ class Client extends Model
         return $this->hasMany(Service::class);
     }
 
+    public function Rates()
+    {
+        return $this->hasMany(Rate::class);
+    }
+
     public function Categories()
     {
         return $this->belongsToMany(Category::class);

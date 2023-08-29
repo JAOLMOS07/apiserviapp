@@ -35,8 +35,5 @@ class Service extends Model
     {
         return $this->HasMany(Contract::class);
     }
-    public function Rate()
-    {
-        return $this->hasOne(Rate::class);
-    }
+
 }
