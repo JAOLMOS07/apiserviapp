@@ -21,11 +21,20 @@ class Worker extends Model
 
     public function Services()
     {
-        return $this->hasMany(Service::class);
+        return $this->belongsToMany(Service::class);
+    }
+    public function Contracts()
+    {
+        return $this->HasMany(Contract::class);
+    }
+    public function Rates()
+    {
+        return $this->HasMany(Rate::class);
     }
 
     public function Categories()
     {
         return $this->belongsToMany(Category::class);
     }
+
 }

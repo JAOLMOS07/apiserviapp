@@ -32,10 +32,6 @@ class ServiceController extends Controller
 
         $client = $this->user->Client;
 
-
-
-
-
         return response($client);
     }
     public function indexWorker()
@@ -95,7 +91,6 @@ class ServiceController extends Controller
                 'description' => $request->description,
                 'price' => $request->price,
                 'Date' => $request->date,
-                'worker_id' => null,
                 'client_id' => $client->id,
                 'calification' => 5,
                 'active' => true
@@ -111,8 +106,65 @@ class ServiceController extends Controller
      */
     public function show(Service $service)
     {
-        //
+        return response($service);
     }
+    public function postulate(Service $service)
+    {
+        if ($service->active == false) {
+            return response("forbidden", 403);
+        }
+        $worker = $this->user->worker;
+
+        foreach ($service->Workers as $workerItem) {
+            // Aquí puedes aplicar tu condición a cada $worker
+            if ($workerItem->id == $worker->id) {
+                return response("forbidden", 403);
+            }
+        }
+        if ($worker != null && $worker->id != $service->client_id) {
+            $service->Workers()->attach($worker->id);
+        }
+        return response($service->Workers, 200);
+    }
+
+    public function aplicants(Service $service)
+    {
+        if ($service->Client->id != $this->user->id) {
+            return response("forbidden", 403);
+        }
+        return response($service->Workers, 200);
+    }
+    public function acceptAplicant(Request $request, Service $service)
+    {
+
+        if ($service->active == false) {
+            return response("forbidden", 403);
+        }
+        //cambiamos el status
+        $service->active = false;
+
+        //quitamos id repetidos
+        $workersUniques = array_unique($request->worker);
+
+        //quitamos el id del usuario por si acaso
+        $workers = array_diff($workersUniques, [$this->user->id]);
+
+        //verificamso que existan id's
+        if (count($workers) === 0) {
+            return response("Debe proporcionar al menos un trabajador.", 400);
+        }
+
+        foreach ($workers as $workerid) {
+            $worker = Worker::findOrFail($workerid);
+        }
+
+        $service->Workers()->sync( $workers );
+        $service->save();
+
+        return response($service->Workers, 200);
+    }
+
+
 
     /**
      * Update the specified resource in storage.

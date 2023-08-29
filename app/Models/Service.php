@@ -13,15 +13,14 @@ class Service extends Model
         'description',
         'price',
         'Date',
-        'worker_id',
         'client_id',
         'calification',
         'active'
     ];
 
-    public function Worker()
+    public function Workers()
     {
-        return $this->belongsTo(Worker::class);
+        return $this->belongsToMany(Worker::class);
     }
     public function Client()
     {
@@ -31,5 +30,13 @@ class Service extends Model
     public function Categories()
     {
         return $this->belongsToMany(Category::class);
+    }
+    public function Contract()
+    {
+        return $this->HasMany(Contract::class);
+    }
+    public function Rate()
+    {
+        return $this->hasOne(Rate::class);
     }
 }
