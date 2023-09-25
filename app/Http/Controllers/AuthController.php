@@ -35,7 +35,7 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
         //Devolvemos la respuesta con el token del usuario
         return response()->json([
-            'message' => 'User created',
+
             'token' => JWTAuth::attempt($credentials),
             'user' => $user
         ], Response::HTTP_OK);
@@ -116,5 +116,14 @@ class AuthController extends Controller
             ], 401);
         //Devolvemos los datos del usuario si todo va bien.
         return response()->json(['user' => $user]);
+    }
+
+    public function validateToken()
+    {
+        return response()->json([
+
+            'status' => "ok",
+
+        ], Response::HTTP_OK);
     }
 }

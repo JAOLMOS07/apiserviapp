@@ -30,11 +30,13 @@ class ServiceController extends Controller
     {
 
         $client = $this->user->Client;
+        $services = Service::where('client_id', $client->id)->get();
 
-        return response($client);
+        return response($services);
     }
     public function indexWorker()
     {
+
 
     }
 

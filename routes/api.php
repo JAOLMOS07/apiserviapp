@@ -31,11 +31,14 @@ Route::prefix('v1')->group(function () {
         //Todo lo que este dentro de este grupo requiere verificación de usuario.
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('get-user', [AuthController::class, 'getUser']);
+        Route::post('validatetoken', [AuthController::class, 'validateToken']);
 
         Route::prefix('client')->group(function () {
             Route::post('createclient', [ClientController::class, 'store']);
 
+
         });
+
         Route::prefix('worker')->group(function () {
             Route::post('createworker', [WorkerController::class, 'store']);
 
@@ -47,24 +50,22 @@ Route::prefix('v1')->group(function () {
             Route::post('postulate/{service}', [ServiceController::class, 'postulate']);
             Route::get('aplicants/{service}', [ServiceController::class, 'aplicants']);
             Route::post('acceptaplicants/{service}', [ServiceController::class, 'acceptAplicant']);
-
-            Route::prefix('contract')->group(function () {
-                Route::get('{service}', [ContractController::class, 'getContract']);
-                Route::patch('{contract}', [ContractController::class, 'AcceptContract']);
-                Route::post('createcontract/{service}', [ContractController::class, 'store']);
-
-
-            });
-            Route::prefix('rate')->group(function () {
-                Route::get('{service}', [RateController::class, 'rate']);
-                Route::post('{service}', [RateController::class, 'store']);
-                Route::patch('worker/{service}', [RateController::class, 'rateWorker']);
-                Route::patch('client/{service}', [RateController::class, 'rateClient']);
-
-
-            });
+            Route::get('getservicesclient', [ServiceController::class, 'indexClient']);
         });
+        Route::prefix('contract')->group(function () {
+            Route::get('{service}', [ContractController::class, 'getContract']);
+            Route::patch('{contract}', [ContractController::class, 'AcceptContract']);
+            Route::post('createcontract/{service}', [ContractController::class, 'store']);
 
 
+        });
+        Route::prefix('rate')->group(function () {
+            Route::get('{service}', [RateController::class, 'rate']);
+            Route::post('{service}', [RateController::class, 'store']);
+            Route::patch('worker/{service}', [RateController::class, 'rateWorker']);
+            Route::patch('client/{service}', [RateController::class, 'rateClient']);
+
+
+        });
     });
 });
