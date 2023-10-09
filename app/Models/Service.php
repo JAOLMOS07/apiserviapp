@@ -31,9 +31,11 @@ class Service extends Model
     {
         return $this->belongsToMany(Category::class);
     }
-    public function Contract()
+
+
+    public function Voucher()
     {
-        return $this->HasMany(Contract::class);
+        return $this->hasOne(Voucher::class);
     }
 
 }

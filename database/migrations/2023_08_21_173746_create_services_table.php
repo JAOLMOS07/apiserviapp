@@ -15,12 +15,15 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('Description');
-            $table->double('price');
+            $table->double('price_min');
+            $table->double('price_max');
             $table->date('Date');
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->unsignedInteger('calification')->nullable();
-            $table->boolean('active')->default(true);
+            $table->unsignedInteger('status')->default(1);
+            $table->boolean('confirmed')->default(false);
+
             $table->timestamps();
 
         });

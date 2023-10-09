@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\EventService;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -99,6 +100,8 @@ class ServiceController extends Controller
         }
 
         $service->Categories()->attach($request->category);
+
+        event(new EventService($service));
         return response($service);
     }
 
