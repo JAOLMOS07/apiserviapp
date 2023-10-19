@@ -11,11 +11,13 @@ class Service extends Model
     protected $fillable = [
         'name',
         'description',
-        'price',
+        'price_min',
+        'price_max',
         'Date',
         'client_id',
         'calification',
-        'active'
+        'status',
+        'confirmed'
     ];
 
     public function Workers()
@@ -36,6 +38,11 @@ class Service extends Model
     public function Voucher()
     {
         return $this->hasOne(Voucher::class);
+    }
+
+    public function Report()
+    {
+        return $this->hasMany(Report::class);
     }
 
 }

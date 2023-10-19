@@ -29,7 +29,7 @@ class ClientController extends Controller
         ]
         );
 
-        return response($client);
+        return response("client", 200);
     }
 
 

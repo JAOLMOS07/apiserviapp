@@ -1,45 +1,56 @@
 <?php
 namespace App\Http\Controllers;
+
 use App\Http\Controllers\Controller;
 use JWTAuth;
 use App\Models\User;
+use App\Models\Role;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Validator;
+
 class AuthController extends Controller
 {
     //Función que utilizaremos para registrar al usuario
     public function register(Request $request)
     {
         //Indicamos que solo queremos recibir name, email y password de la request
-        $data = $request->only('name', 'email', 'password');
+        $data = $request->only('name', 'email', 'password', 'phone', 'role_id');
         //Realizamos las validaciones
         $validator = Validator::make($data, [
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:6|max:50',
+            'phone' => 'required|min:10|max:10',
+            'role_id' => 'required',
+
+
         ]);
         //Devolvemos un error si fallan las validaciones
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()], 400);
         }
-        //Creamos el nuevo usuario
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
-        ]);
-        //Nos guardamos el usuario y la contraseña para realizar la petición de token a JWTAuth
-        $credentials = $request->only('email', 'password');
-        //Devolvemos la respuesta con el token del usuario
-        return response()->json([
 
-            'token' => JWTAuth::attempt($credentials),
-            'user' => $user
-        ], Response::HTTP_OK);
+        try {
+        //Creamos el nuevo usuario
+            $role = Role::findOrFail($request->role_id);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+                'phone' => $request->phone,
+                'role_id' => $role->id
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'role error'], 400);
+        }
+
+        return response()->json("usuario creado", Response::HTTP_OK);
     }
+
     //Funcion que utilizaremos para hacer login
     public function authenticate(Request $request)
     {
@@ -71,7 +82,7 @@ class AuthController extends Controller
         //Devolvemos el token
         return response()->json([
             'token' => $token,
-            'user' => Auth::user()
+            /* 'user' => Auth::user() */
         ]);
     }
     //Función que utilizaremos para eliminar el token y desconectar al usuario
@@ -110,7 +121,7 @@ class AuthController extends Controller
         //Realizamos la autentificación
         $user = JWTAuth::authenticate($request->token);
         //Si no hay usuario es que el token no es valido o que ha expirado
-        if(!$user)
+        if (!$user)
             return response()->json([
                 'message' => 'Invalid token / token expired',
             ], 401);

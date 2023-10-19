@@ -10,8 +10,7 @@ class Worker extends Model
     use HasFactory;
     protected $fillable = [
         'id',
-        'user_id',
-        'calification'
+        'user_id'
     ];
 
     public function User()

@@ -23,7 +23,7 @@ class ServiceController extends Controller
     {
         $token = $request->header('Authorization');
         if ($token != '')
-           $this->user = JWTAuth::parseToken()->authenticate();
+            $this->user = JWTAuth::parseToken()->authenticate();
     }
 
 
@@ -68,11 +68,13 @@ class ServiceController extends Controller
      */
     public function store(Request $request)
     {
+
         // Define las reglas de validación para cada campo
         $rules = [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric',
+            'price_min' => 'required|numeric',
+            'price_max' => 'required|numeric',
             'date' => 'required|date',
 
         ];
@@ -84,6 +86,7 @@ class ServiceController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
         }
+
         $service = null;
         $client = $this->user->Client;
 
@@ -91,17 +94,17 @@ class ServiceController extends Controller
             $service = Service::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'price' => $request->price,
+                'price_min' => $request->price_min,
+                'price_max' => $request->price_max,
                 'Date' => $request->date,
                 'client_id' => $client->id,
-                'calification' => 5,
-                'active' => true
             ]);
         }
 
         $service->Categories()->attach($request->category);
 
-        event(new EventService($service));
+       /*  event(new EventService($service)); */
+
         return response($service);
     }
 
@@ -162,7 +165,7 @@ class ServiceController extends Controller
             $worker = Worker::findOrFail($workerid);
         }
 
-        $service->Workers()->sync( $workers );
+        $service->Workers()->sync($workers);
         $service->save();
 
         return response($service->Workers, 200);

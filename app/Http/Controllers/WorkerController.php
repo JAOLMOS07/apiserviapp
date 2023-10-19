@@ -32,15 +32,14 @@ class WorkerController extends Controller
         $worker = Worker::create(
             [
                 "id" => $this->user->id,
-                "user_id" => $this->user->id,
-                "calification" => 5
+                "user_id" => $this->user->id
             ]
         );
 
 
         $worker->Categories()->attach($request->category);
 
-        return response($worker);
+        return response("worker", 200);
     }
 
 
