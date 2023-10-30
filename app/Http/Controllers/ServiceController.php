@@ -42,6 +42,27 @@ class ServiceController extends Controller
     }
 
 
+/*     public function getOffers2(Request $request)
+    {
+
+        $worker = $this->user->Worker;
+        $workerId = $worker->id;
+        $workerUserId = $worker->user_id;
+
+        $services = Service::whereHas('categories', function ($query) use ($workerId) {
+            $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
+                $subQuery->select('categories.id')
+                    ->from('categories')
+                    ->join('category_worker', 'categories.id', '=', 'category_worker.category_id')
+                    ->where('category_worker.worker_id', $workerId);
+            });
+        })
+            ->where('status', 1)
+            ->where('client_id', '!=', $workerId)
+            ->get();
+
+        return response($services);
+    } */
     public function getOffers(Request $request)
     {
         $worker = $this->user->Worker;
@@ -56,13 +77,15 @@ class ServiceController extends Controller
                     ->where('category_worker.worker_id', $workerId);
             });
         })
-            ->where('active', true)
+            ->where('status', 1)
             ->where('client_id', '!=', $workerId)
+            ->whereDoesntHave('workers', function ($subQuery) use ($workerId) {
+                $subQuery->where('worker_id', $workerId);
+            })
             ->get();
 
         return response($services);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -117,7 +140,7 @@ class ServiceController extends Controller
     }
     public function postulate(Service $service)
     {
-        if ($service->active == false) {
+        if ($service->status != 1) {
             return response("forbidden", 403);
         }
         $worker = $this->user->worker;

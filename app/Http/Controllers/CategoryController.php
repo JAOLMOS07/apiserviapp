@@ -32,4 +32,13 @@ class CategoryController extends Controller
         return response($category);
     }
 
+    public function index()
+    {
+
+        $category = Category::all();
+
+
+        return response($category);
+    }
+
 }

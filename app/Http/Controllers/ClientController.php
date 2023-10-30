@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\User;
+
 use Illuminate\Http\Request;
 use JWTAuth;
 
 class ClientController extends Controller
 {
-    /**
+    /* *
      * Display a listing of the resource.
      */
     protected $user;

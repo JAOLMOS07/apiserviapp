@@ -26,6 +26,9 @@ Route::prefix('v1')->group(function () {
     Route::post('login', [AuthController::class, 'authenticate']);
     Route::post('register', [AuthController::class, 'register']);
     Route::post('createcategory', [CategoryController::class, 'store']);
+    Route::get('categories', [CategoryController::class, 'index']);
+    Route::post('createclient', [ClientController::class, 'store']);
+
 
     Route::group(['middleware' => ['jwt.verify']], function () {
         //Todo lo que este dentro de este grupo requiere verificación de usuario.
@@ -34,11 +37,10 @@ Route::prefix('v1')->group(function () {
         Route::post('validatetoken', [AuthController::class, 'validateToken']);
 
         Route::prefix('client')->group(function () {
-            Route::post('createclient', [ClientController::class, 'store']);
         });
 
         Route::prefix('worker')->group(function () {
-            Route::post('createworker', [WorkerController::class, 'store']);
+            Route::post('createworker', [WorkerController::class, 'stor e']);
         });
 
         Route::prefix('service')->group(function () {

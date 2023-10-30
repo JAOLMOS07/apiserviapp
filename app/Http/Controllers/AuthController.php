@@ -2,6 +2,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
+use App\Models\Worker;
 use JWTAuth;
 use App\Models\User;
 use App\Models\Role;
@@ -33,9 +35,9 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['error' => $validator->messages()], 400);
         }
-
+        $user = null;
         try {
-        //Creamos el nuevo usuario
+            //Creamos el nuevo usuario
             $role = Role::findOrFail($request->role_id);
             $user = User::create([
                 'name' => $request->name,
@@ -44,11 +46,32 @@ class AuthController extends Controller
                 'phone' => $request->phone,
                 'role_id' => $role->id
             ]);
+            $user = User::where('email', $request->email)->first();
+
+            $client = Client::create(
+                [
+                    "id" => $user->id,
+                    "user_id" => $user->id
+                ]
+            );
+
+             if ($role->id == 2) {
+                 $worker = Worker::create(
+                     [
+                         "id" => $user->id,
+                         "user_id" => $user->id
+                     ]
+                 );
+
+
+                 $worker->Categories()->attach($request->categories);
+
+             }
         } catch (\Throwable $th) {
-            return response()->json(['error' => 'role error'], 400);
+            return response()->json(['error' => $th], 400);
         }
 
-        return response()->json("usuario creado", Response::HTTP_OK);
+        return $this->authenticate($request);
     }
 
     //Funcion que utilizaremos para hacer login
