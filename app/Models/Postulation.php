@@ -5,25 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class voucher extends Model
+class Postulation extends Model
 {
+
     use HasFactory;
     protected $fillable = [
-        "transaction_number",
-        "price",
+        "worker_id",
         "service_id",
-        "confirmed"
-
-    ];
-
-
-    public function Banck()
+        "price"
+    ] ;
+    public function Worker()
     {
-        return $this->belongsTo(Bank::class);
+        return $this->belongsTo(Worker::class);
     }
-
     public function Service()
     {
         return $this->belongsTo(Service::class);
     }
+
 }

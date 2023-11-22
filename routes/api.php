@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PostulationController;
 use App\Http\Controllers\WorkerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ServiceController;
@@ -46,10 +47,18 @@ Route::prefix('v1')->group(function () {
         Route::prefix('service')->group(function () {
             Route::post('createservice', [ServiceController::class, 'store']);
             Route::get('getoffers', [ServiceController::class, 'getOffers']);
-            Route::post('postulate/{service}', [ServiceController::class, 'postulate']);
-            Route::get('aplicants/{service}', [ServiceController::class, 'aplicants']);
-            Route::post('acceptaplicants/{service}', [ServiceController::class, 'acceptAplicant']);
+            Route::post('postulate/{service}', [PostulationController::class, 'postulate']);
+            Route::get('aplicants/{service}', [PostulationController::class, 'getApplicants']);
+            Route::post('acceptaplicants/{service}', [PostulationController::class, 'acceptApplicant']);
             Route::get('getservicesclient', [ServiceController::class, 'indexClient']);
+            Route::get('getallservicesclient', [ServiceController::class, 'indexClientAll']);
+            Route::get('getallservicesworker', [ServiceController::class, 'indexWorker']);
+            Route::get('getservice/{service}', [ServiceController::class, 'show']);
+            Route::get('getrate/{service}', [ServiceController::class, 'getRate']);
+            Route::get('getuserservice/{service}', [ServiceController::class, 'getUserService']);
+            Route::get('getvoucher/{service}', [ServiceController::class, 'getVoucher']);
+            Route::post('toverifyvoucher/{voucher}', [ServiceController::class, 'toVerifyVoucher']);
+            Route::post('validatevoucher/{voucher}', [ServiceController::class, 'validateVoucher']);
         });
 
         Route::prefix('rate')->group(function () {

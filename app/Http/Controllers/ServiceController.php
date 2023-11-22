@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Events\EventService;
+use App\Models\Rate;
 use App\Models\Service;
+use App\Models\voucher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -31,43 +33,77 @@ class ServiceController extends Controller
     {
 
         $client = $this->user->Client;
-        $services = Service::where('client_id', $client->id)->get();
+        $services = Service::where('client_id', $client->id)->where('status', 1)->get();
+
+        return response($services);
+    }
+    public function indexClientAll()
+    {
+
+        $client = $this->user->Client;
+        $services = Service::where('client_id', $client->id)->where('status', '>', 1)->get();
 
         return response($services);
     }
     public function indexWorker()
     {
+        $worker = $this->user->Worker;
+        $services = Service::where('client_id', $worker->id)->where('status', '>', 1)->get();
 
+        return response($services);
 
     }
 
 
-/*     public function getOffers2(Request $request)
-    {
+    /*     public function getOffers2(Request $request)
+        {
 
-        $worker = $this->user->Worker;
-        $workerId = $worker->id;
-        $workerUserId = $worker->user_id;
+            $worker = $this->user->Worker;
+            $workerId = $worker->id;
+            $workerUserId = $worker->user_id;
 
-        $services = Service::whereHas('categories', function ($query) use ($workerId) {
-            $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
-                $subQuery->select('categories.id')
-                    ->from('categories')
-                    ->join('category_worker', 'categories.id', '=', 'category_worker.category_id')
-                    ->where('category_worker.worker_id', $workerId);
-            });
-        })
-            ->where('status', 1)
-            ->where('client_id', '!=', $workerId)
-            ->get();
+            $services = Service::whereHas('categories', function ($query) use ($workerId) {
+                $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
+                    $subQuery->select('categories.id')
+                        ->from('categories')
+                        ->join('category_worker', 'categories.id', '=', 'category_worker.category_id')
+                        ->where('category_worker.worker_id', $workerId);
+                });
+            })
+                ->where('status', 1)
+                ->where('client_id', '!=', $workerId)
+                ->get();
 
-        return response($services);
-    } */
+            return response($services);
+        } */
+    /*     public function getOffers(Request $request)
+        {
+            $worker = $this->user->Worker;
+            $workerId = $worker->id;
+            $workerUserId = $worker->user_id;
+
+            $services = Service::whereHas('categories', function ($query) use ($workerId) {
+                $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
+                    $subQuery->select('categories.id')
+                        ->from('categories')
+                        ->join('category_worker', 'categories.id', '=', 'category_worker.category_id')
+                        ->where('category_worker.worker_id', $workerId);
+                });
+            })
+                ->where('status', 1)
+                ->where('client_id', '!=', $workerId)
+                ->whereDoesntHave('workers', function ($subQuery) use ($workerId) {
+                    $subQuery->where('worker_id', $workerId);
+                })
+                ->get();
+
+            return response($services);
+        } */
+
     public function getOffers(Request $request)
     {
         $worker = $this->user->Worker;
         $workerId = $worker->id;
-        $workerUserId = $worker->user_id;
 
         $services = Service::whereHas('categories', function ($query) use ($workerId) {
             $query->whereIn('categories.id', function ($subQuery) use ($workerId) {
@@ -79,8 +115,10 @@ class ServiceController extends Controller
         })
             ->where('status', 1)
             ->where('client_id', '!=', $workerId)
-            ->whereDoesntHave('workers', function ($subQuery) use ($workerId) {
-                $subQuery->where('worker_id', $workerId);
+            ->whereNotIn('id', function ($subQuery) use ($workerId) {
+                $subQuery->select('service_id')
+                    ->from('postulations')
+                    ->where('worker_id', $workerId);
             })
             ->get();
 
@@ -126,7 +164,7 @@ class ServiceController extends Controller
 
         $service->Categories()->attach($request->category);
 
-       /*  event(new EventService($service)); */
+        /*  event(new EventService($service)); */
 
         return response($service);
     }
@@ -138,62 +176,83 @@ class ServiceController extends Controller
     {
         return response($service);
     }
-    public function postulate(Service $service)
+    public function getRate(Service $service)
     {
-        if ($service->status != 1) {
-            return response("forbidden", 403);
+        $rate= Rate::where('service_id',$service->id)->first();
+        return response($rate);
+    }
+    public function getUserService(Service $service)
+    {
+        $userOnline = $this->user;
+        if ($service->client_id === $userOnline->id) {
+            $user = User::findOrFail($service->worker_id);
+            return response($user);
+        } else {
+            $user = User::findOrFail($service->client_id);
         }
-        $worker = $this->user->worker;
+    }
+    public function getVoucher(Service $service)
+    {
+        $voucher = Voucher::where('service_id', $service->id)->first();
 
-        foreach ($service->Workers as $workerItem) {
-            // Aquí puedes aplicar tu condición a cada $worker
-            if ($workerItem->id == $worker->id) {
+        return response($voucher);
+    }
+    /*     public function postulate(Service $service)
+        {
+            if ($service->status != 1) {
                 return response("forbidden", 403);
             }
-        }
-        if ($worker != null && $worker->id != $service->client_id) {
-            $service->Workers()->attach($worker->id);
-        }
-        return response($service->Workers, 200);
-    }
+            $worker = $this->user->worker;
 
-    public function aplicants(Service $service)
+            foreach ($service->Workers as $workerItem) {
+                // Aquí puedes aplicar tu condición a cada $worker
+                if ($workerItem->id == $worker->id) {
+                    return response("forbidden", 403);
+                }
+            }
+            if ($worker != null && $worker->id != $service->client_id) {
+                $service->Workers()->attach($worker->id);
+            }
+            return response($service->Workers, 200);
+        } */
+
+    /* public function aplicants(Service $service)
     {
         if ($service->Client->id != $this->user->id) {
             return response("forbidden", 403);
         }
         return response($service->Workers, 200);
-    }
-    public function acceptAplicant(Request $request, Service $service)
-    {
+    } */
+    /*  public function acceptAplicant(Request $request, Service $service)
+     {
 
-        if ($service->active == false) {
-            return response("forbidden", 403);
-        }
-        //cambiamos el status
-        $service->active = false;
+         if ($service->active == false) {
+             return response("forbidden", 403);
+         }
+         //cambiamos el status
+         $service->active = false;
 
-        //quitamos id repetidos
-        $workersUniques = array_unique($request->worker);
+         //quitamos id repetidos
+         $workersUniques = array_unique($request->worker);
 
-        //quitamos el id del usuario por si acaso
-        $workers = array_diff($workersUniques, [$this->user->id]);
+         //quitamos el id del usuario por si acaso
+         $workers = array_diff($workersUniques, [$this->user->id]);
 
-        //verificamso que existan id's
-        if (count($workers) === 0) {
-            return response("Debe proporcionar al menos un trabajador.", 400);
-        }
+         //verificamso que existan id's
+         if (count($workers) === 0) {
+             return response("Debe proporcionar al menos un trabajador.", 400);
+         }
 
-        foreach ($workers as $workerid) {
-            $worker = Worker::findOrFail($workerid);
-        }
+         foreach ($workers as $workerid) {
+             $worker = Worker::findOrFail($workerid);
+         }
 
-        $service->Workers()->sync($workers);
-        $service->save();
+         $service->Workers()->sync($workers);
+         $service->save();
 
-        return response($service->Workers, 200);
-    }
-
+         return response($service->Workers, 200);
+     }
+  */
 
 
     /**
@@ -203,7 +262,27 @@ class ServiceController extends Controller
     {
         //
     }
+    public function toVerifyVoucher(Request $request, Voucher $voucher)
+    {
+        $voucher->update([
+            "transaction_number" => $request->transaction_number
+        ]);
 
+        return response($voucher);
+    }
+    public function ValidateVoucher(Voucher $voucher)
+    {
+        $voucher->update([
+            "confirmed" => true
+        ]);
+
+        $service = Service::findOrFail($voucher->service_id);
+        $service->update([
+            "status" => 3,
+            "confirmed" => true
+        ]);
+        return response($service);
+    }
     /**
      * Remove the specified resource from storage.
      */

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string('transaction_number');
+            $table->string('transaction_number')->nullable();
             $table->double('price');
             $table->boolean('confirmed')->default(false);
-            $table->unsignedBigInteger('bank_id');
+            $table->unsignedBigInteger('bank_id')->default(1);
             $table->foreign('bank_id')->references('id')->on('banks')->onDelete('cascade');
             $table->unsignedBigInteger('service_id');
             $table->foreign('service_id')->references('id')->on('services')->onDelete('cascade');

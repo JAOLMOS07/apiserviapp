@@ -20,7 +20,7 @@ class Worker extends Model
 
     public function Services()
     {
-        return $this->belongsToMany(Service::class);
+        return $this->hasMany(Service::class);
     }
 
     public function Rates()

@@ -20,11 +20,14 @@ return new class extends Migration
             $table->date('Date');
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+            $table->unsignedBigInteger('worker_id')->nullable();
+            $table->foreign('worker_id')->references('id')->on('workers')->onDelete('cascade');
             $table->unsignedInteger('calification')->nullable()->default(0);
             $table->unsignedInteger('status')->default(1);
             $table->boolean('confirmed')->default(false);
 
             $table->timestamps();
+
 
         });
     }

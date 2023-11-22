@@ -15,6 +15,7 @@ class Service extends Model
         'price_max',
         'Date',
         'client_id',
+        'worker_id',
         'calification',
         'status',
         'confirmed'
@@ -22,7 +23,7 @@ class Service extends Model
 
     public function Workers()
     {
-        return $this->belongsToMany(Worker::class);
+        return $this->belongsTo(Worker::class);
     }
     public function Client()
     {
