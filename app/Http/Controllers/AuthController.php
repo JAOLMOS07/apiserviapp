@@ -74,6 +74,12 @@ class AuthController extends Controller
         return $this->authenticate($request);
     }
 
+    public function updateUser(Request $request,User $user)
+    {
+        $user->update($request->all());
+        return response($user);
+
+    }
     //Funcion que utilizaremos para hacer login
     public function authenticate(Request $request)
     {

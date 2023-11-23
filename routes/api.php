@@ -29,21 +29,24 @@ Route::prefix('v1')->group(function () {
     Route::post('createcategory', [CategoryController::class, 'store']);
     Route::get('categories', [CategoryController::class, 'index']);
     Route::post('createclient', [ClientController::class, 'store']);
-
+    Route::post('admin/validatevoucher/{voucher}', [ServiceController::class, 'validateVoucher']);
 
     Route::group(['middleware' => ['jwt.verify']], function () {
         //Todo lo que este dentro de este grupo requiere verificación de usuario.
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('get-user', [AuthController::class, 'getUser']);
         Route::post('validatetoken', [AuthController::class, 'validateToken']);
-
+        Route::post('update/user', [AuthController::class, 'updateUser']);
         Route::prefix('client')->group(function () {
         });
 
         Route::prefix('worker')->group(function () {
-            Route::post('createworker', [WorkerController::class, 'stor e']);
+            Route::post('createworker', [WorkerController::class, 'store']);
         });
+        Route::prefix('admin')->group(function () {
+            Route::get('getvouchertoverify', [ServiceController::class, 'getVouchers']);
 
+        });
         Route::prefix('service')->group(function () {
             Route::post('createservice', [ServiceController::class, 'store']);
             Route::get('getoffers', [ServiceController::class, 'getOffers']);
@@ -54,11 +57,13 @@ Route::prefix('v1')->group(function () {
             Route::get('getallservicesclient', [ServiceController::class, 'indexClientAll']);
             Route::get('getallservicesworker', [ServiceController::class, 'indexWorker']);
             Route::get('getservice/{service}', [ServiceController::class, 'show']);
+            Route::get('getrates}', [ServiceController::class, 'show']);
             Route::get('getrate/{service}', [ServiceController::class, 'getRate']);
             Route::get('getuserservice/{service}', [ServiceController::class, 'getUserService']);
             Route::get('getvoucher/{service}', [ServiceController::class, 'getVoucher']);
             Route::post('toverifyvoucher/{voucher}', [ServiceController::class, 'toVerifyVoucher']);
-            Route::post('validatevoucher/{voucher}', [ServiceController::class, 'validateVoucher']);
+            Route::post('rateservice/{rate}', [ServiceController::class, 'rateService']);
+
         });
 
         Route::prefix('rate')->group(function () {

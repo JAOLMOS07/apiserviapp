@@ -48,7 +48,7 @@ class ServiceController extends Controller
     public function indexWorker()
     {
         $worker = $this->user->Worker;
-        $services = Service::where('client_id', $worker->id)->where('status', '>', 1)->get();
+        $services = Service::where('worker_id', $worker->id)->where('status', '>', 1)->get();
 
         return response($services);
 
@@ -176,20 +176,74 @@ class ServiceController extends Controller
     {
         return response($service);
     }
+    public function getRates(Request $request)
+    {
+        $userOnline = $this->user;
+
+        if($request->type === 1){
+            Rate::where('client_id',$userOnline->id)->get();
+        }
+        return response($request);
+    }
     public function getRate(Service $service)
     {
         $rate= Rate::where('service_id',$service->id)->first();
         return response($rate);
     }
+    public function getVouchers()
+    {
+        if($this->user->role_id === 3){
+            $vouchers = Voucher::where('confirmed',false)->get();
+            return response($vouchers);
+        }
+        return response()->json([
+            'message' => 'no tienes esos permisos',
+        ], 401);
+    }
     public function getUserService(Service $service)
     {
+
         $userOnline = $this->user;
         if ($service->client_id === $userOnline->id) {
             $user = User::findOrFail($service->worker_id);
             return response($user);
         } else {
             $user = User::findOrFail($service->client_id);
+            return response($user);
+
         }
+    }
+    public function rateService(Request $request,Rate $rate)
+    {
+        $service = Service::findOrFail($rate->service_id);
+
+        $userOnline = $this->user;
+
+        if ($service->client_id === $userOnline->id) {
+            if($request->rate > 0){
+                $rate->update([
+                    "rate_client"=>$request->rate,
+                    "comment_client"=>$request->comment
+                ]);
+            }
+
+
+        } else {
+            if($request->rate > 0){
+                $rate->update([
+                    "rate_worker"=>$request->rate,
+                    "comment_worker"=>$request->comment
+                ]);
+            }
+
+
+        }
+        if($rate->rate_client > 0 && $rate->rate_worker > 0){
+            $service->update([
+                "status"=>4
+            ]);
+        }
+        return response($rate);
     }
     public function getVoucher(Service $service)
     {
@@ -272,6 +326,7 @@ class ServiceController extends Controller
     }
     public function ValidateVoucher(Voucher $voucher)
     {
+
         $voucher->update([
             "confirmed" => true
         ]);
