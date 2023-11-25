@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Rate;
 use App\Models\User;
 
 use Illuminate\Http\Request;
@@ -33,7 +34,25 @@ class ClientController extends Controller
 
         return response("client", 200);
     }
+    public function getRate(User $user)
+    {
+        $rates = Rate::where('client_id', $user->id)->where('rate_worker','>',0)->get();
 
+        $cantidadCalificaciones = $rates->count();
+        if ($cantidadCalificaciones === 0) {
+            return response()->json([
+                'calificación' => 0,
+                'servicios' => 0
+            ]);
+        }
+        $sumaRates = $rates->sum('rate_worker');
+        $promedioRates = $sumaRates / $cantidadCalificaciones;
+        return response()->json([
+            'calificación' => $promedioRates,
+            'servicios' => $cantidadCalificaciones
+        ]);
+
+    }
 
     public function show(Client $client)
     {

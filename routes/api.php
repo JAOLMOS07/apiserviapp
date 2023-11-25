@@ -42,6 +42,12 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('worker')->group(function () {
             Route::post('createworker', [WorkerController::class, 'store']);
+            Route::get('getrate/{user}', [WorkerController::class, 'getRate']);
+
+        });
+        Route::prefix('client')->group(function () {
+            Route::get('getrate/{user}', [ClientController::class, 'getRate']);
+
         });
         Route::prefix('admin')->group(function () {
             Route::get('getvouchertoverify', [ServiceController::class, 'getVouchers']);

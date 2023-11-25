@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Rate;
+use App\Models\User;
 use App\Models\Worker;
 use Illuminate\Http\Request;
 use JWTAuth;
@@ -17,7 +19,7 @@ class WorkerController extends Controller
     {
         $token = $request->header('Authorization');
         if ($token != '')
-           $this->user = JWTAuth::parseToken()->authenticate();
+            $this->user = JWTAuth::parseToken()->authenticate();
     }
     public function index()
     {
@@ -43,7 +45,25 @@ class WorkerController extends Controller
     }
 
 
+    public function getRate(User $user)
+    {
+        $rates = Rate::where('worker_id', $user->id)->where('rate_client','>',0)->get();
 
+        $cantidadCalificaciones = $rates->count();
+        if ($cantidadCalificaciones === 0) {
+            return response()->json([
+                'calificación' => 0,
+                'servicios' => 0
+            ]);
+        }
+        $sumaRates = $rates->sum('rate_client');
+        $promedioRates = $sumaRates / $cantidadCalificaciones;
+        return response()->json([
+            'calificación' => $promedioRates,
+            'servicios' => $cantidadCalificaciones
+        ]);
+
+    }
 
     /**
      * Display the specified resource.
